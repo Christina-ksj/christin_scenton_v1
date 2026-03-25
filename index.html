@@ -1727,7 +1727,7 @@ function initDashboard() {
 
   // 6. Topbar sub & date badge
   const topbarSub = document.querySelector('.topbar-sub');
-  if (topbarSub && dates.length) topbarSub.textContent = `Google Search Console · ${dates[0].replace(/-/g,'.')} – ${dates[dates.length-1].replace(/-/g,'.')}`;
+  if (topbarSub && dates.length) topbarSub.textContent = `Google Search Console ·2026.02.01 – 2026.04.30${dates[0].replace(/-/g,'.')} – ${dates[dates.length-1].replace(/-/g,'.')}`;
   const dateBadge = document.querySelector('.date-badge');
   if (dateBadge && dates.length) dateBadge.textContent = dates[dates.length-1].replace(/-/g,'.');
 
