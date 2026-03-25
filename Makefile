@@ -104,6 +104,25 @@ watch:
 			sleep 5; \
 		done)
 
+# ─── JSON만 주입 (parse 생략) ───────────────────
+inject: $(DATA_DIR)
+	@if [ ! -f "$(DATA_JSON)" ]; then \
+		printf "\033[31m✗ $(DATA_JSON) 없음 — 구글시트에서 JSON을 먼저 복사하세요\033[0m\n"; exit 1; \
+	fi
+	@printf "\033[34m→ 대시보드 업데이트 중...\033[0m\n"
+	python3 $(SCRIPTS_DIR)/inject_data.py \
+		--data "$(DATA_JSON)" \
+		--html "$(OUTPUT_HTML)"
+	@printf "\033[32m✓ $(OUTPUT_HTML) 업데이트 완료\033[0m\n"
+
+# ─── JSON 주입 + git push ────────────────────────
+update: inject
+	@printf "\033[34m→ GitHub에 푸시 중...\033[0m\n"
+	git add $(OUTPUT_HTML)
+	git commit -m "chore: 대시보드 업데이트 $$(date '+%Y-%m-%d')"
+	git push
+	@printf "\033[32m✓ GitHub Pages 반영 완료 (1~2분 소요)\033[0m\n"
+
 # ─── 정리 ───────────────────────────────────────
 clean:
 	rm -rf $(DATA_DIR)

@@ -734,11 +734,8 @@ body {
         <div class="topbar-sub">Google Search Console · 2026.02.01 – 2026.04.30</div>
       </div>
       <div class="topbar-right">
-        <div class="period-tabs">
+        <div class="period-tabs" id="period-tabs-container">
           <button class="period-tab active" id="ptab-0" onclick="renderTab(0)">오버뷰</button>
-          <button class="period-tab" id="ptab-1" onclick="renderTab(1)">1월</button>
-          <button class="period-tab" id="ptab-2" onclick="renderTab(2)">2월</button>
-          <button class="period-tab" id="ptab-3" onclick="renderTab(3)">3월</button>
         </div>
         <div class="date-badge">2026.03.20</div>
       </div>
@@ -780,7 +777,7 @@ body {
         </div>
 
         <!-- Month Comparison Grid -->
-        <div class="grid-3col section-gap">
+        <div class="grid-3col section-gap" id="month-compare-grid">
           <div class="month-card blue">
             <div class="month-card-inner">
               <div class="month-card-header">
@@ -877,67 +874,20 @@ body {
           <div class="chart-wrap" style="height:220px;">
             <canvas id="overviewChart"></canvas>
           </div>
-          <div class="trend-insight-box">
+          <div class="trend-insight-box" id="overview-trend-insight">
             <div class="insight-title">💡 트렌드 인사이트</div>
-            1월 말 클릭 감소 후 3월 들어 V자 반등 확인. 3월 10일, 15일 클릭 피크(20–24회)는 특정 키워드 순위 상승에 기인. 3월 16일 평균 순위 6.7위 달성 — 1페이지 진입 임박 신호.
           </div>
         </div>
 
-        <!-- 3-Month KPI Summary -->
-        <div class="grid-4 section-gap">
-          <div class="summary-kpi-card blue">
-            <div class="summary-kpi-label">3개월 총 클릭수</div>
-            <div class="summary-kpi-value">1,189</div>
-            <div class="summary-kpi-sub" style="color:var(--accent);">Dec.18 – Mar.17</div>
-          </div>
-          <div class="summary-kpi-card green">
-            <div class="summary-kpi-label">3개월 총 노출수</div>
-            <div class="summary-kpi-value">97.5만</div>
-            <div class="summary-kpi-sub">97,479 impressions</div>
-          </div>
-          <div class="summary-kpi-card orange">
-            <div class="summary-kpi-label">3개월 평균 CTR</div>
-            <div class="summary-kpi-value">1.21%</div>
-            <div class="summary-kpi-sub">업종 평균 대비 낮음</div>
-          </div>
-          <div class="summary-kpi-card purple">
-            <div class="summary-kpi-label">3개월 평균 순위</div>
-            <div class="summary-kpi-value">7.7</div>
-            <div class="summary-kpi-sub">1페이지 하단~2페이지</div>
-          </div>
-        </div>
+        <!-- KPI Summary (dynamic) -->
+        <div class="grid-4 section-gap" id="overview-kpi-grid"></div>
 
         <!-- Priority Actions -->
         <div class="card section-gap">
           <div class="card-header">
             <span class="card-title">📋 우선 액션 플랜</span>
           </div>
-          <div class="grid-3col">
-            <div class="priority-col urgent">
-              <div class="priority-col-label">🔴 즉시 처리</div>
-              <ul class="priority-list">
-                <li>중복 페이지 5,722건 canonical 태그 점검</li>
-                <li>404 에러 21건 리디렉션 설정</li>
-                <li>4xx 오류 25건 서버 설정 확인</li>
-              </ul>
-            </div>
-            <div class="priority-col short">
-              <div class="priority-col-label">🟡 단기 개선</div>
-              <ul class="priority-list">
-                <li>평균 CTR 1.21% → 메타 디스크립션 전면 재작성</li>
-                <li>크롤링됨-미색인 407건 콘텐츠 품질 개선</li>
-                <li>기회 키워드 TOP10 페이지 보강</li>
-              </ul>
-            </div>
-            <div class="priority-col long">
-              <div class="priority-col-label">🟢 중장기 전략</div>
-              <ul class="priority-list">
-                <li>3월 순위 개선세 유지 — 핵심 30개 키워드 집중</li>
-                <li>색인률 18% → 30%+ 목표 — 불필요 페이지 정리</li>
-                <li>모바일 CTR 개선 — UX 최적화 착수</li>
-              </ul>
-            </div>
-          </div>
+          <div class="grid-3col" id="overview-actions-grid"></div>
         </div>
 
       </div>
@@ -1177,71 +1127,7 @@ const DATA = {
   low_ctr: [{"인기 검색어": "자라홈", "클릭수": 1, "노출": 13409, "CTR": 0.0001, "게재 순위": 8.43}, {"인기 검색어": "탑텐", "클릭수": 0, "노출": 3907, "CTR": 0, "게재 순위": 8.1}, {"인기 검색어": "샤롯데", "클릭수": 0, "노출": 2782, "CTR": 0, "게재 순위": 6.75}, {"인기 검색어": "사진전", "클릭수": 4, "노출": 1811, "CTR": 0.0022, "게재 순위": 5.73}, {"인기 검색어": "자라 홈", "클릭수": 0, "노출": 1470, "CTR": 0, "게재 순위": 8.95}, {"인기 검색어": "감곡cc", "클릭수": 5, "노출": 1290, "CTR": 0.0039, "게재 순위": 6.86}, {"인기 검색어": "자동차 판매점", "클릭수": 0, "노출": 1195, "CTR": 0, "게재 순위": 7.03}, {"인기 검색어": "최인아책방", "클릭수": 4, "노출": 876, "CTR": 0.0046, "게재 순위": 8.33}, {"인기 검색어": "세니아의원", "클릭수": 1, "노출": 718, "CTR": 0.0014, "게재 순위": 8.44}, {"인기 검색어": "가연", "클릭수": 1, "노출": 717, "CTR": 0.0014, "게재 순위": 9.39}]
 };
 
-const MONTH_CONFIG = {
-  1: {
-    label: '1월',
-    period: '2025.12.18 – 2026.01.31',
-    start: '2025-12-18',
-    end: '2026-01-31',
-    clickRatio: 0.49,
-    impRatio: 0.50,
-    ctrMult: 0.91,
-    posAdj: +0.02,
-    comments: {
-      kpi: '<div class="comment-label info">💡 성과 인사이트</div>전체 기간 중 최장 <strong>45일</strong> 집계. 1월 3일 클릭 <strong>25회</strong>로 월 최고 기록. 월말로 갈수록 8~9회로 하락 추세 — 계절성 요인 또는 콘텐츠 노후화 가능성 검토 필요.',
-      trend: '<div class="comment-label">💡 트렌드 분석</div>1월 3일 클릭 25회 피크 후 점진적 하락. 노출은 일평균 <strong>1,187회</strong>로 안정적이나 클릭 전환이 부족 — 메타 디스크립션 최적화가 가장 효과적인 개선 방법.',
-      kw: '<div class="comment-label info">💡 키워드 인사이트</div>\'센트온\' 브랜드 키워드(CTR 16.7%)가 압도적 1위. \'향기마케팅\' 등 카테고리 키워드는 클릭 7~15회로 성장 가능성 높음 — 관련 콘텐츠 보강 시 트래픽 배증 가능.',
-      device: '<div class="comment-label">💡 기기 인사이트</div>데스크톱(57%) 편중. 모바일(41%)이 상당한 비중을 차지하나 CTR이 낮아 <strong>모바일 최적화</strong> 시 추가 클릭 확보 가능.'
-    },
-    insights: {
-      urgent: ['중복 페이지 5,722건 canonical 태그 점검 시급', '404 에러 21건 리디렉션 처리'],
-      short: ['CTR 1.10%로 3개월 중 최저 — 메타 디스크립션 재작성 시작', '1월 말 클릭 감소 추세 모니터링 및 원인 분석'],
-      long: ['순위 7.72 기준 상위 30개 키워드 집중 최적화', '색인률 개선 위한 불필요 페이지 정리 착수']
-    }
-  },
-  2: {
-    label: '2월',
-    period: '2026.02.01 – 2026.02.28',
-    start: '2026-02-01',
-    end: '2026-02-28',
-    clickRatio: 0.30,
-    impRatio: 0.31,
-    ctrMult: 0.91,
-    posAdj: +0.06,
-    comments: {
-      kpi: '<div class="comment-label info">💡 성과 인사이트</div>일평균 클릭 <strong>12.9회</strong>로 1월(13.1회)과 유사 수준 유지. 2월 23일 <strong>20회</strong>로 월 최고 기록. CTR 1.10% 유지 — 순위 소폭 악화(7.76)에도 클릭률 유지는 긍정적 신호.',
-      trend: '<div class="comment-label">💡 트렌드 분석</div>2월 초반 8~9회 저조 후 월 중반부터 회복. 2월 21~23일 연속 고클릭(15~20회) 기록. 말일(2/28) 18회로 상승세 진입 — 3월 성장의 전조.',
-      kw: '<div class="comment-label info">💡 키워드 인사이트</div>브랜드 외 \'향기마케팅\' 계열 키워드 CTR이 1.0~1.5%로 안정적. \'매장 향기\', \'공간향기\' 등 니즈 키워드 순위 상승 중 — 콘텐츠 보강 시 클릭 증가 기대.',
-      device: '<div class="comment-label">💡 기기 인사이트</div>기기 분포 1월과 유사. 모바일 CTR 개선이 전체 CTR 향상의 핵심 레버 — 모바일 스니펫 최적화 우선 적용 권장.'
-    },
-    insights: {
-      urgent: ['4xx 오류 25건 서버 설정 확인', '리디렉션 포함 페이지 29건 점검'],
-      short: ['CTR 1.10% 유지 — 2월 23일 클릭 20회 최고 기록 키워드 집중 분석', '스니펫 최적화로 CTR 1.5% 목표 설정'],
-      long: ['순위 7.76 — 기회 키워드 콘텐츠 보강으로 1페이지 진입 준비', '크롤링됨-미색인 407건 콘텐츠 품질 개선 착수']
-    }
-  },
-  3: {
-    label: '3월',
-    period: '2026.03.01 – 2026.03.17',
-    start: '2026-03-01',
-    end: '2026-03-17',
-    clickRatio: 0.22,
-    impRatio: 0.19,
-    ctrMult: 1.07,
-    posAdj: -0.29,
-    comments: {
-      kpi: '<div class="comment-label good">🚀 성과 하이라이트</div>17일 집계임에도 <strong>일평균 클릭 15.4회로 3개월 최고</strong>. CTR 1.29%로 3개월 최우수. 3월 16일 순위 <strong>6.7위</strong> 달성 — 콘텐츠 최적화 효과 본격화 신호.',
-      trend: '<div class="comment-label good">🚀 트렌드 분석</div>3월 전반 꾸준한 성장세. 3월 15일 24클릭·16일 순위 6.7위는 특정 키워드의 <strong>1페이지 진입 시점</strong>으로 추정. 이 모멘텀 유지가 최우선 과제.',
-      kw: '<div class="comment-label good">🚀 키워드 인사이트</div>상위 키워드 순위 <strong>전반적으로 0.3위 개선</strong>. 이 추세 유지 시 2~3개 핵심 키워드의 TOP 5 진입 가능 — \'향기마케팅\' 계열 집중 공략 권장.',
-      device: '<div class="comment-label good">🚀 기기 인사이트</div>3월 들어 모바일 클릭 비중 소폭 상승. 모바일 UX 개선 작업의 효과 가능성 — 지속적인 모바일 최적화로 추가 성장 기대.'
-    },
-    insights: {
-      urgent: ['3월 13일 클릭 4회 급감 원인 분석 — 크롤링 이슈 여부 확인'],
-      short: ['CTR 1.29%로 3개월 최고 — 상승 모멘텀 유지 위해 상위 페이지 메타 최적화 계속'],
-      long: ['3월 16일 순위 6.7위 달성 — 1페이지 안착을 위한 핵심 키워드 집중 전략 수립', '색인률 18% → 25% 목표 설정 및 실행']
-    }
-  }
-};
+let MONTH_CONFIG = {};
 
 // ─── State ───
 let currentTab = 0;
@@ -1525,11 +1411,7 @@ function buildLowCtrTable() {
 }
 
 // ─── KPI Change badges ───
-const KPI_CHANGES = {
-  1: { clicks: null, ctr: null, pos: null },
-  2: { clicks: { cls: 'down', text: '▼ 1.5%' }, ctr: null, pos: null },
-  3: { clicks: { cls: 'up', text: '▲ 19.4%' }, ctr: { cls: 'up', text: '▲ 17.3%' }, pos: { cls: 'up', text: '▲ 크게개선' } }
-};
+let KPI_CHANGES = {};
 
 function renderKpiChange(elId, changeInfo, baseText) {
   const el = document.getElementById(elId);
@@ -1664,30 +1546,108 @@ function renderMonthly(month) {
   document.getElementById('insights-period').textContent = cfg.period;
 }
 
+// ─── Build MONTH_CONFIG dynamically from DATA.chart ───
+
+function buildMonthConfig() {
+  const chart = DATA.chart;
+  if (!chart || chart.length === 0) return {};
+  const COLORS = ['blue', 'green', 'orange', 'purple'];
+  const monthMap = {};
+  chart.forEach(d => {
+    const ym = d['날짜'].substring(0, 7);
+    if (!monthMap[ym]) monthMap[ym] = [];
+    monthMap[ym].push(d);
+  });
+  const sortedMonths = Object.keys(monthMap).sort();
+  const totalClicks = chart.reduce((s, d) => s + d['클릭수'], 0);
+  const totalImp    = chart.reduce((s, d) => s + d['노출'], 0);
+  const overallPos  = chart.reduce((s, d) => s + d['순위'], 0) / chart.length;
+  const overallCTR  = totalImp > 0 ? totalClicks / totalImp : 0;
+  const config = {};
+  sortedMonths.forEach((ym, idx) => {
+    const days = monthMap[ym].sort((a, b) => a['날짜'].localeCompare(b['날짜']));
+    const mClicks   = days.reduce((s, d) => s + d['클릭수'], 0);
+    const mImp      = days.reduce((s, d) => s + d['노출'], 0);
+    const mCTR      = mImp > 0 ? mClicks / mImp : 0;
+    const mPos      = days.reduce((s, d) => s + d['순위'], 0) / days.length;
+    const dailyAvg  = mClicks / days.length;
+    const monthNum  = parseInt(ym.split('-')[1]);
+    const label     = monthNum + '월';
+    const startDate = days[0]['날짜'];
+    const endDate   = days[days.length - 1]['날짜'];
+    const sFmt      = startDate.substring(5).replace('-', '.');
+    const eFmt      = endDate.substring(5).replace('-', '.');
+    const clickRatio = totalClicks > 0 ? mClicks / totalClicks : 1 / sortedMonths.length;
+    const impRatio   = totalImp   > 0 ? mImp    / totalImp    : 1 / sortedMonths.length;
+    const ctrMult    = overallCTR > 0 ? mCTR    / overallCTR  : 1;
+    const posAdj     = mPos - overallPos;
+    const ctrPct     = (mCTR * 100).toFixed(2);
+    const posRnd     = mPos.toFixed(2);
+    const posQual    = mPos <= 5 ? '1페이지 상위권' : mPos <= 10 ? '1페이지권' : '2페이지권';
+    const ctrQual    = mCTR >= 0.015 ? '우수' : mCTR >= 0.01 ? '양호' : '개선 필요';
+    const style      = mCTR >= 0.015 ? 'good' : 'info';
+    const emoji      = mCTR >= 0.015 ? '🚀' : '💡';
+    config[idx + 1] = {
+      label, color: COLORS[idx % COLORS.length],
+      period: `${startDate.replace(/-/g, '.')} – ${endDate.replace(/-/g, '.')}`,
+      shortPeriod: `${sFmt}~${eFmt} · ${days.length}일`,
+      start: startDate, end: endDate,
+      clickRatio, impRatio, ctrMult, posAdj,
+      _stats: { mClicks, mImp, mCTR, mPos, dailyAvg, days: days.length },
+      comments: {
+        kpi:    `<div class="comment-label ${style}">${emoji} 성과 인사이트</div>${label} 집계 <strong>${days.length}일</strong>. 일평균 클릭 <strong>${dailyAvg.toFixed(1)}회</strong>. CTR <strong>${ctrPct}%</strong> (${ctrQual}) · 평균순위 <strong>${posRnd}위</strong> (${posQual}).`,
+        trend:  `<div class="comment-label">💡 트렌드 분석</div>${label} 총 클릭 <strong>${mClicks.toLocaleString()}회</strong> · 노출 <strong>${mImp.toLocaleString()}회</strong>. CTR ${ctrPct}% — ${mCTR >= 0.012 ? '전환율 양호, 현재 전략 유지' : '메타 디스크립션 최적화로 CTR 개선 권장'}.`,
+        kw:     `<div class="comment-label info">💡 키워드 인사이트</div>${label} 평균 순위 ${posRnd}위. ${mPos <= 8 ? '1페이지 내 안정적 노출 — 브랜드 키워드 CTR 유지 전략 권장' : '기회 키워드 콘텐츠 보강으로 1페이지 진입 준비 필요'}.`,
+        device: `<div class="comment-label">💡 기기 인사이트</div>데스크톱/모바일 혼합 트래픽. ${label} 모바일 CTR 최적화 시 전체 성과 추가 개선 기대.`
+      },
+      insights: {
+        urgent: mCTR < 0.01
+          ? [`CTR ${ctrPct}% — 메타 디스크립션 즉시 재작성 필요`, '색인 미생성 페이지 canonical 태그 점검']
+          : ['색인 미생성 페이지 점검 및 처리', '4xx 오류 페이지 리디렉션 처리'],
+        short: [
+          `${label} 일평균 ${Math.ceil(dailyAvg * 1.2)}회 목표 — 상위 키워드 CTR 개선`,
+          mCTR >= 0.012 ? '현재 성과 유지 — 상위 페이지 메타 최적화 지속' : '스니펫 최적화로 CTR 1.5% 목표 설정'
+        ],
+        long: [
+          `순위 ${posRnd}위 → 핵심 키워드 집중으로 ${Math.max(1, Math.floor(mPos) - 2)}위권 목표`,
+          '색인률 개선 — 불필요 페이지 정리 및 콘텐츠 품질 향상'
+        ]
+      }
+    };
+  });
+  return config;
+}
+
+function buildKpiChanges(config) {
+  const changes = {};
+  const keys = Object.keys(config).map(Number).sort();
+  keys.forEach((k, idx) => {
+    if (idx === 0) { changes[k] = { clicks: null, ctr: null, pos: null }; return; }
+    const prev = config[keys[idx - 1]]._stats;
+    const curr = config[k]._stats;
+    const clickPct = prev.dailyAvg > 0 ? ((curr.dailyAvg - prev.dailyAvg) / prev.dailyAvg * 100) : 0;
+    const ctrPct   = prev.mCTR > 0    ? ((curr.mCTR    - prev.mCTR)    / prev.mCTR    * 100) : 0;
+    const posDiff  = curr.mPos - prev.mPos;
+    changes[k] = {
+      clicks: Math.abs(clickPct) > 0.5 ? { cls: clickPct > 0 ? 'up' : 'down', text: `${clickPct > 0 ? '▲' : '▼'} ${Math.abs(clickPct).toFixed(1)}%` } : null,
+      ctr:    Math.abs(ctrPct)   > 0.5 ? { cls: ctrPct   > 0 ? 'up' : 'down', text: `${ctrPct   > 0 ? '▲' : '▼'} ${Math.abs(ctrPct).toFixed(1)}%`   } : null,
+      pos: Math.abs(posDiff) > 0.05 ? { cls: posDiff < 0 ? 'up' : 'down', text: `${posDiff < 0 ? '▲' : '▼'} ${Math.abs(posDiff).toFixed(2)}위 ${posDiff < 0 ? '개선' : '악화'}` } : null
+    };
+  });
+  return changes;
+}
+
 // ─── renderTab ───
 
 function renderTab(tab) {
   currentTab = tab;
-
-  // Period tab button states
-  [0, 1, 2, 3].forEach(i => {
-    const btn = document.getElementById('ptab-' + i);
-    if (btn) {
-      if (i === tab) btn.classList.add('active');
-      else btn.classList.remove('active');
-    }
-  });
-
-  // Sidebar nav item states (sync first two items to overview vs monthly)
+  document.querySelectorAll('.period-tab').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('ptab-' + tab);
+  if (activeBtn) activeBtn.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  if (tab === 0) {
-    document.querySelectorAll('.nav-item')[0].classList.add('active');
-  }
-
-  // Show/hide sections
+  if (tab === 0) document.querySelectorAll('.nav-item')[0].classList.add('active');
   const overviewSection = document.getElementById('overview-section');
-  const monthlySection = document.getElementById('monthly-section');
-
+  const monthlySection  = document.getElementById('monthly-section');
   if (tab === 0) {
     overviewSection.style.display = '';
     monthlySection.style.display = 'none';
@@ -1700,10 +1660,84 @@ function renderTab(tab) {
 }
 
 // ─── Init ───
-buildIssues();
-buildOppTable();
-buildLowCtrTable();
-renderTab(0);
+
+function initDashboard() {
+  MONTH_CONFIG = buildMonthConfig();
+  KPI_CHANGES  = buildKpiChanges(MONTH_CONFIG);
+  const monthKeys = Object.keys(MONTH_CONFIG).map(Number).sort();
+
+  // 1. Period tab buttons
+  const tabsContainer = document.getElementById('period-tabs-container');
+  tabsContainer.innerHTML = '<button class="period-tab active" id="ptab-0" onclick="renderTab(0)">오버뷰</button>';
+  monthKeys.forEach(k => {
+    tabsContainer.innerHTML += `<button class="period-tab" id="ptab-${k}" onclick="renderTab(${k})">${MONTH_CONFIG[k].label}</button>`;
+  });
+
+  // 2. Month compare cards
+  const CARD_COLORS = ['blue','green','orange','purple'];
+  const grid = document.getElementById('month-compare-grid');
+  grid.innerHTML = monthKeys.map((k, idx) => {
+    const cfg = MONTH_CONFIG[k];
+    const s   = cfg._stats;
+    const ch  = KPI_CHANGES[k];
+    const clickChg = ch.clicks ? `<span class="chg ${ch.clicks.cls}">${ch.clicks.text}</span>` : `<span class="chg base">기준월</span>`;
+    const ctrChg   = ch.ctr   ? `<span class="chg ${ch.ctr.cls}">${ch.ctr.text}</span>`         : '';
+    const posChg   = ch.pos   ? `<span class="chg ${ch.pos.cls}">${ch.pos.text}</span>`         : '';
+    return `<div class="month-card ${cfg.color}"><div class="month-card-inner">
+      <div class="month-card-header"><h3>${cfg.label}</h3><span>${cfg.shortPeriod}</span></div>
+      <div class="month-metrics">
+        <div class="metric-row"><span class="metric-label">일평균 클릭</span><span class="metric-val">${s.dailyAvg.toFixed(1)} ${clickChg}</span></div>
+        <div class="metric-row"><span class="metric-label">총 클릭수</span><span class="metric-val">${s.mClicks.toLocaleString()}</span></div>
+        <div class="metric-row"><span class="metric-label">평균 CTR</span><span class="metric-val">${(s.mCTR*100).toFixed(2)}% ${ctrChg}</span></div>
+        <div class="metric-row"><span class="metric-label">평균 순위</span><span class="metric-val">${s.mPos.toFixed(2)} ${posChg}</span></div>
+      </div>
+    </div></div>`;
+  }).join('');
+
+  // 3. Overview KPI summary
+  const chart = DATA.chart;
+  const totalClicks = chart.reduce((s, d) => s + d['클릭수'], 0);
+  const totalImp    = chart.reduce((s, d) => s + d['노출'],   0);
+  const avgCTR      = totalImp > 0 ? totalClicks / totalImp : 0;
+  const avgPos      = chart.reduce((s, d) => s + d['순위'], 0) / chart.length;
+  const dates       = chart.map(d => d['날짜']).sort();
+  const impFmt      = totalImp >= 10000 ? (totalImp / 10000).toFixed(1) + '만' : totalImp.toLocaleString();
+  const nMonths     = monthKeys.length;
+  const periodLabel = `${nMonths}개월`;
+  const posQual     = avgPos <= 5 ? '1페이지 상위권' : avgPos <= 10 ? '1페이지권' : '2페이지권';
+  document.getElementById('overview-kpi-grid').innerHTML = `
+    <div class="summary-kpi-card blue"><div class="summary-kpi-label">${periodLabel} 총 클릭수</div><div class="summary-kpi-value">${totalClicks.toLocaleString()}</div><div class="summary-kpi-sub" style="color:var(--accent);">${dates[0]} ~ ${dates[dates.length-1]}</div></div>
+    <div class="summary-kpi-card green"><div class="summary-kpi-label">${periodLabel} 총 노출수</div><div class="summary-kpi-value">${impFmt}</div><div class="summary-kpi-sub">${totalImp.toLocaleString()} impressions</div></div>
+    <div class="summary-kpi-card orange"><div class="summary-kpi-label">${periodLabel} 평균 CTR</div><div class="summary-kpi-value">${(avgCTR*100).toFixed(2)}%</div><div class="summary-kpi-sub">${avgCTR >= 0.015 ? '✅ 양호' : '메타 최적화 필요'}</div></div>
+    <div class="summary-kpi-card purple"><div class="summary-kpi-label">${periodLabel} 평균 순위</div><div class="summary-kpi-value">${avgPos.toFixed(1)}</div><div class="summary-kpi-sub">${posQual}</div></div>`;
+
+  // 4. Overview trend insight
+  const lastMonth = MONTH_CONFIG[monthKeys[monthKeys.length - 1]];
+  const firstMonth = MONTH_CONFIG[monthKeys[0]];
+  const trendDir = lastMonth._stats.dailyAvg > firstMonth._stats.dailyAvg ? '상승' : '하락';
+  document.getElementById('overview-trend-insight').innerHTML =
+    `<div class="insight-title">💡 트렌드 인사이트</div>${firstMonth.label} 대비 ${lastMonth.label} 일평균 클릭 ${trendDir} (${firstMonth._stats.dailyAvg.toFixed(1)}회 → ${lastMonth._stats.dailyAvg.toFixed(1)}회). 최근 CTR ${(lastMonth._stats.mCTR*100).toFixed(2)}% · 평균순위 ${lastMonth._stats.mPos.toFixed(2)}위 — ${lastMonth._stats.mPos < firstMonth._stats.mPos ? '순위 개선세 지속 중' : '순위 개선 집중 필요'}.`;
+
+  // 5. Priority actions (from last month's insights)
+  const ins = lastMonth.insights;
+  document.getElementById('overview-actions-grid').innerHTML = `
+    <div class="priority-col urgent"><div class="priority-col-label">🔴 즉시 처리</div><ul class="priority-list">${ins.urgent.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+    <div class="priority-col short"><div class="priority-col-label">🟡 단기 개선</div><ul class="priority-list">${ins.short.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+    <div class="priority-col long"><div class="priority-col-label">🟢 중장기 전략</div><ul class="priority-list">${ins.long.map(t=>`<li>${t}</li>`).join('')}</ul></div>`;
+
+  // 6. Topbar sub & date badge
+  const topbarSub = document.querySelector('.topbar-sub');
+  if (topbarSub && dates.length) topbarSub.textContent = `Google Search Console · ${dates[0].replace(/-/g,'.')} – ${dates[dates.length-1].replace(/-/g,'.')}`;
+  const dateBadge = document.querySelector('.date-badge');
+  if (dateBadge && dates.length) dateBadge.textContent = dates[dates.length-1].replace(/-/g,'.');
+
+  buildIssues();
+  buildOppTable();
+  buildLowCtrTable();
+  renderTab(0);
+}
+
+initDashboard();
 </script>
 </body>
 </html>

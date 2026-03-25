@@ -1,0 +1,275 @@
+// ─────────────────────────────────────────────────────────────
+// 센트온 SEO 대시보드 Apps Script
+// 메뉴: 📊 대시보드 > 📋 로컬 JSON 내보내기
+// ─────────────────────────────────────────────────────────────
+const SPREADSHEET_ID = "14yFekIrWDE_gec2srM6hO-D9HFDt0VKxlY3p6DlDPvU";
+const WEBHOOK_URL    = "https://hook.us2.make.com/kl5b5hphmqdql08ysvdmk7fa29lo2u0p";
+
+// ── 공통: 시트 → 객체 배열 ──────────────────────────────────
+function getSheetData(ss, sheetName) {
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return [];
+  const data = sheet.getDataRange().getValues();
+  if (data.length < 2) return [];
+  const headers = data[0].map(h => String(h).trim());
+  return data.slice(1)
+    .filter(row => row.some(cell => cell !== "" && cell !== null))
+    .map(row => {
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = row[i]);
+      return obj;
+    });
+}
+
+// ── 날짜 → YYYY-MM-DD ───────────────────────────────────────
+function formatDate(val) {
+  if (!val) return "";
+  if (val instanceof Date) {
+    const y = val.getFullYear();
+    const m = String(val.getMonth() + 1).padStart(2, "0");
+    const d = String(val.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+  return String(val).substring(0, 10).trim();
+}
+
+// ── 컬럼 키 자동 탐지 ───────────────────────────────────────
+function findKey(obj, keywords) {
+  return Object.keys(obj).find(k =>
+    keywords.some(kw => k.toLowerCase().includes(kw.toLowerCase()))
+  ) || Object.keys(obj)[0];
+}
+
+// ── CTR 정규화 (% or 0~1) ───────────────────────────────────
+function normCTR(val) {
+  const f = parseFloat(val) || 0;
+  return f > 1 ? parseFloat((f / 100).toFixed(4)) : parseFloat(f.toFixed(4));
+}
+
+// ─────────────────────────────────────────────────────────────
+// 📋 로컬 JSON 내보내기 (Make.com 없이 반자동 업데이트)
+// ─────────────────────────────────────────────────────────────
+function exportToLocalJSON() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  // 차트
+  const chart = getSheetData(ss, "차트").map(row => {
+    const dateK  = findKey(row, ["날짜", "date"]);
+    const clickK = findKey(row, ["클릭", "click"]);
+    const impK   = findKey(row, ["노출", "impress"]);
+    const ctrK   = findKey(row, ["CTR", "ctr"]);
+    const posK   = findKey(row, ["순위", "position"]);
+    return {
+      "날짜":  formatDate(row[dateK]),
+      "클릭수": parseInt(row[clickK]) || 0,
+      "노출":   parseInt(row[impK])   || 0,
+      "CTR":   normCTR(row[ctrK]),
+      "순위":  parseFloat(row[posK]) || 0
+    };
+  }).filter(r => r["날짜"]).sort((a, b) => a["날짜"].localeCompare(b["날짜"]));
+
+  // 키워드
+  const keywords = getSheetData(ss, "검색어 수").map(row => {
+    const kwK    = findKey(row, ["검색어", "쿼리", "키워드", "query", "keyword"]);
+    const clickK = findKey(row, ["클릭", "click"]);
+    const impK   = findKey(row, ["노출", "impress"]);
+    const ctrK   = findKey(row, ["CTR", "ctr"]);
+    const posK   = findKey(row, ["순위", "position"]);
+    return {
+      "인기 검색어": String(row[kwK] || "").trim(),
+      "클릭수":     parseInt(row[clickK]) || 0,
+      "노출":        parseInt(row[impK])   || 0,
+      "CTR":        normCTR(row[ctrK]),
+      "게재 순위":  parseFloat(row[posK]) || 0
+    };
+  }).filter(r => r["인기 검색어"]);
+
+  // 페이지
+  const pages = getSheetData(ss, "페이지").map(row => {
+    const pageK  = findKey(row, ["페이지", "url", "page"]);
+    const clickK = findKey(row, ["클릭", "click"]);
+    const impK   = findKey(row, ["노출", "impress"]);
+    const ctrK   = findKey(row, ["CTR", "ctr"]);
+    const posK   = findKey(row, ["순위", "position"]);
+    return {
+      "인기 페이지": String(row[pageK] || "").trim(),
+      "클릭수":     parseInt(row[clickK]) || 0,
+      "노출":        parseInt(row[impK])   || 0,
+      "CTR":        normCTR(row[ctrK]),
+      "게재 순위":  parseFloat(row[posK]) || 0
+    };
+  }).filter(r => r["인기 페이지"]);
+
+  // 국가
+  const countries = getSheetData(ss, "국가").map(row => {
+    const countryK = findKey(row, ["국가", "country"]);
+    const clickK   = findKey(row, ["클릭", "click"]);
+    const impK     = findKey(row, ["노출", "impress"]);
+    return {
+      "국가":  String(row[countryK] || "").trim(),
+      "클릭수": parseInt(row[clickK]) || 0,
+      "노출":   parseInt(row[impK])   || 0
+    };
+  }).filter(r => r["국가"]);
+
+  // 날짜 범위 (차트에서 자동 추출)
+  const dates     = chart.map(r => r["날짜"]).filter(Boolean);
+  const startDate = dates[0]              || "";
+  const endDate   = dates[dates.length-1] || "";
+  const today     = formatDate(new Date());
+
+  // 기회 키워드 (순위 11~20, 노출 높음)
+  const opportunity = keywords
+    .filter(k => k["게재 순위"] > 10 && k["게재 순위"] <= 20 && k["노출"] > 50)
+    .sort((a, b) => b["노출"] - a["노출"])
+    .slice(0, 10);
+
+  // 저CTR 키워드
+  const low_ctr = keywords
+    .filter(k => k["노출"] >= 200 && k["CTR"] < 0.01)
+    .sort((a, b) => b["노출"] - a["노출"])
+    .slice(0, 10);
+
+  const gscData = {
+    chart,
+    keywords,
+    pages,
+    devices:     [],   // 기기 시트 없으면 빈 배열 → inject_data.py가 기존값 유지
+    countries,
+    index:       null, // 색인 시트 없으면 null → inject_data.py가 기존값 유지
+    opportunity,
+    low_ctr
+  };
+
+  const jsonStr   = JSON.stringify(gscData, null, 2);
+  const totalDays = chart.length;
+  const totalClicks = chart.reduce((s, r) => s + r["클릭수"], 0);
+
+  // 터미널 명령어
+  const cmd = `pbpaste > ~/AI-S/scenton/data/gsc_data.json && make -C ~/AI-S/scenton update`;
+
+  const html = HtmlService.createHtmlOutput(`<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, sans-serif; padding: 20px; background: #f8fafc; color: #0f172a; }
+  h3 { font-size: 15px; margin-bottom: 6px; }
+  .meta { font-size: 12px; color: #64748b; margin-bottom: 14px; display: flex; gap: 12px; }
+  .badge { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+  .badge.green { background: #dcfce7; color: #15803d; }
+  textarea { width: 100%; height: 180px; font-family: monospace; font-size: 11px;
+    border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px;
+    background: #fff; resize: none; }
+  .btn { margin-top: 10px; padding: 8px 18px; background: #3b82f6; color: #fff;
+    border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .btn:hover { background: #2563eb; }
+  .step { margin-top: 14px; background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 12px 14px; }
+  .step-title { font-size: 11px; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .cmd { background: #1e293b; color: #7dd3fc; font-family: monospace; font-size: 11px;
+    padding: 8px 12px; border-radius: 6px; word-break: break-all; cursor: pointer; }
+  .cmd:hover { background: #334155; }
+  .tip { font-size: 11px; color: #94a3b8; margin-top: 6px; }
+</style>
+</head>
+<body>
+  <h3>📋 GSC 데이터 JSON 내보내기</h3>
+  <div class="meta">
+    <span class="badge green">📅 ${startDate} ~ ${endDate}</span>
+    <span class="badge">${totalDays}일</span>
+    <span class="badge">클릭 ${totalClicks.toLocaleString()}회</span>
+    <span class="badge">키워드 ${keywords.length}개</span>
+  </div>
+
+  <textarea id="json" readonly>${jsonStr.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>
+  <button class="btn" onclick="copyJson()">📋 JSON 복사</button>
+
+  <div class="step">
+    <div class="step-title">🖥 터미널에서 실행 (복사 후)</div>
+    <div class="cmd" onclick="copyCmd(this)">${cmd}</div>
+    <div class="tip">↑ 클릭하면 명령어도 복사됩니다</div>
+  </div>
+
+<script>
+  document.getElementById("json").select();
+  function copyJson() {
+    const t = document.getElementById("json");
+    t.select();
+    document.execCommand("copy");
+    event.target.textContent = "✅ JSON 복사됨!";
+    setTimeout(() => event.target.textContent = "📋 JSON 복사", 2000);
+  }
+  function copyCmd(el) {
+    const ta = document.createElement("textarea");
+    ta.value = el.textContent;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    el.style.background = "#064e3b";
+    setTimeout(() => el.style.background = "", 1500);
+  }
+</script>
+</body>
+</html>`)
+    .setWidth(560)
+    .setHeight(420);
+
+  SpreadsheetApp.getUi().showModalDialog(html, "대시보드 데이터 내보내기");
+}
+
+// ─────────────────────────────────────────────────────────────
+// 🚀 Make.com 웹훅 방식 (크레딧 있을 때)
+// ─────────────────────────────────────────────────────────────
+function sendToDashboard() {
+  const GITHUB_TOKEN = "여기에_새_GitHub_PAT";
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  function getSheetDataLocal(sheetName) {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return null;
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) return null;
+    const headers = data[0];
+    return data.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((h, i) => obj[h] = row[i]);
+      return obj;
+    });
+  }
+
+  const chart   = getSheetDataLocal("차트");
+  const queries = getSheetDataLocal("검색어 수");
+  const pages   = getSheetDataLocal("페이지");
+  const country = getSheetDataLocal("국가");
+
+  const shaResponse = UrlFetchApp.fetch(
+    "https://api.github.com/repos/Christina-ksj/christin_scenton_v1/contents/index.html",
+    { method: "GET", headers: { "Authorization": "Bearer " + GITHUB_TOKEN }, muteHttpExceptions: true }
+  );
+  let githubSha = "";
+  if (shaResponse.getResponseCode() === 200) {
+    githubSha = JSON.parse(shaResponse.getContentText()).sha;
+  }
+
+  const prompt = `센트온(Scenton) 서치콘솔 데이터로 인터랙티브 HTML 대시보드 생성.\n차트: ${JSON.stringify(chart)}\n키워드: ${JSON.stringify(queries)}\n페이지: ${JSON.stringify(pages)}\n국가: ${JSON.stringify(country)}\nHTML만 출력.`;
+
+  UrlFetchApp.fetch(WEBHOOK_URL, {
+    method: "POST",
+    contentType: "application/json",
+    payload: JSON.stringify({ githubToken: GITHUB_TOKEN, githubSha, prompt })
+  });
+  SpreadsheetApp.getUi().alert("✅ 대시보드 생성 요청 완료!\n약 30~60초 후 GitHub Pages에 반영돼요.");
+}
+
+// ── 메뉴 ────────────────────────────────────────────────────
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu("📊 대시보드")
+    .addItem("📋 로컬 JSON 내보내기", "exportToLocalJSON")
+    .addSeparator()
+    .addItem("🚀 Make.com으로 업데이트", "sendToDashboard")
+    .addToUi();
+}
